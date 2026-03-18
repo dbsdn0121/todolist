@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>할 일 현황</title>
+  <style>
+    :root {
+      --bg: #eef3fb;
+      --bg-deep: #e7eef8;
+      --surface: rgba(255, 255, 255, 0.78);
+      --surface-strong: rgba(255, 255, 255, 0.9);
+      --text: #111827;
+      --text-soft: #4b5563;
+      --text-muted: #8b95a1;
+      --line: rgba(15, 23, 42, 0.07);
+      --primary: #2f80ff;
+      --primary-strong: #1b64da;
+      --primary-soft: rgba(47, 128, 255, 0.12);
+      --success: #12b76a;
+      --danger: #f04452;
+      --danger-soft: rgba(240, 68, 82, 0.12);
+      --warning: #f79009;
+      --warning-soft: rgba(247, 144, 9, 0.13);
+      --shadow-xl: 0 28px 70px rgba(15, 23, 42, 0.12);
+      --shadow-lg: 0 18px 46px rgba(15, 23, 42, 0.09);
+      --shadow-md: 0 10px 28px rgba(15, 23, 42, 0.06);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 18px;
+      --radius-sm: 14px;
+      --container: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(47, 128, 255, 0.14), transparent 24%),
+        radial-gradient(circle at 100% 10%, rgba(99, 102, 241, 0.12), transparent 20%),
+        linear-gradient(180deg, #f6f9fe 0%, var(--bg) 45%, var(--bg-deep) 100%);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    body {
+      padding: 28px 18px 86px;
+    }
+
+    .bg-orb,
+    .bg-orb-2 {
+      position: fixed;
+      border-radius: 999px;
+      pointer-events: none;
+      filter: blur(80px);
+      opacity: 0.5;
+      z-index: 0;
+    }
+
+    .bg-orb {
+      top: -90px;
+      left: -90px;
+      width: 240px;
+      height: 240px;
+      background: rgba(47, 128, 255, 0.16);
+    }
+
+    .bg-orb-2 {
+      right: -80px;
+      top: 140px;
+      width: 220px;
+      height: 220px;
+      background: rgba(129, 140, 248, 0.12);
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: var(--container);
+      margin: 0 auto;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .summary-card,
+    .toolbar-shell,
+    .task-card,
+    .empty-state,
+    .modal-content,
+    .floating-add {
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .summary-card {
+      position: relative;
+      overflow: hidden;
+      padding: 22px 22px 20px;
+      background: var(--surface);
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255, 255, 255, 0.82);
+      box-shadow: var(--shadow-md);
+    }
+
+    .summary-card::after {
+      content: "";
+      position: absolute;
+      right: -26px;
+      top: -26px;
+      width: 110px;
+      height: 110px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(47, 128, 255, 0.11), transparent 65%);
+      pointer-events: none;
+    }
+
+    .summary-label {
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+    }
+
+    .summary-value {
+      font-size: 34px;
+      font-weight: 850;
+      line-height: 1;
+      letter-spacing: -0.05em;
+    }
+
+    .summary-sub {
+      margin-top: 10px;
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.55;
+      letter-spacing: -0.01em;
+    }
+
+    .toolbar-shell {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px;
+      margin-bottom: 18px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.68);
+      border: 1px solid rgba(255, 255, 255, 0.82);
+      box-shadow: var(--shadow-md);
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ghost-btn,
+    .complete-btn,
+    .delete-btn,
+    .close-icon,
+    .floating-add,
+    .add-btn {
+      appearance: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, opacity 0.18s ease;
+      font-family: inherit;
+    }
+
+    .ghost-btn:hover,
+    .complete-btn:hover,
+    .delete-btn:hover,
+    .close-icon:hover,
+    .floating-add:hover,
+    .add-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .ghost-btn {
+      padding: 11px 15px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.74);
+      border: 1px solid rgba(255, 255, 255, 0.82);
+      color: var(--text-soft);
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      box-shadow: var(--shadow-md);
+    }
+
+    .ghost-btn.active {
+      background: linear-gradient(180deg, rgba(106, 169, 255, 0.22) 0%, rgba(47, 128, 255, 0.16) 100%);
+      color: var(--primary-strong);
+      border-color: rgba(47, 128, 255, 0.1);
+      box-shadow: 0 14px 26px rgba(47, 128, 255, 0.12);
+    }
+
+    .toolbar-note {
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+
+    .task-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+      gap: 18px;
+    }
+
+    .task-card {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-height: 290px;
+      padding: 24px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.68) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.82);
+      border-radius: 30px;
+      box-shadow: var(--shadow-lg);
+      animation: fadeUp 0.45s ease;
+    }
+
+    .task-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.18), transparent 28%);
+      pointer-events: none;
+    }
+
+    .task-card::after {
+      content: "";
+      position: absolute;
+      right: -32px;
+      bottom: -46px;
+      width: 150px;
+      height: 150px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(47, 128, 255, 0.14), transparent 68%);
+      pointer-events: none;
+    }
+
+    .task-card.overdue::after {
+      background: radial-gradient(circle, rgba(240, 68, 82, 0.16), transparent 68%);
+    }
+
+    .task-card.urgent::after {
+      background: radial-gradient(circle, rgba(247, 144, 9, 0.16), transparent 68%);
+    }
+
+    .task-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .task-index {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 42px;
+      height: 42px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.06);
+      color: var(--text-soft);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 13px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    .status-pill::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.9;
+    }
+
+    .status-pill.active {
+      background: var(--primary-soft);
+      color: var(--primary-strong);
+    }
+
+    .status-pill.urgent {
+      background: var(--warning-soft);
+      color: var(--warning);
+    }
+
+    .status-pill.overdue {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .task-title {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1.26;
+      letter-spacing: -0.04em;
+      font-weight: 850;
+      word-break: keep-all;
+    }
+
+    .task-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .meta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 13px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.045);
+      color: var(--text-soft);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .progress-shell {
+      padding: 16px;
+      border-radius: 22px;
+      background: rgba(15, 23, 42, 0.03);
+      border: 1px solid rgba(15, 23, 42, 0.03);
+    }
+
+    .progress-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .progress-title {
+      font-size: 16px;
+      font-weight: 850;
+      letter-spacing: -0.03em;
+    }
+
+    .progress-detail {
+      margin-top: 5px;
+      color: var(--text-muted);
+      font-size: 13px;
+      letter-spacing: -0.01em;
+    }
+
+    .progress-percent {
+      font-size: 18px;
+      font-weight: 850;
+      letter-spacing: -0.04em;
+    }
+
+    .progress {
+      position: relative;
+      height: 15px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.07);
+      overflow: hidden;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.45);
+    }
+
+    .bar {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #9bc3ff 0%, #5b9fff 35%, var(--primary) 100%);
+      transition: width 0.45s ease;
+      box-shadow: inset 0 -1px 0 rgba(255,255,255,0.3), 0 10px 18px rgba(47, 128, 255, 0.18);
+    }
+
+    .task-card.urgent .bar {
+      background: linear-gradient(90deg, #ffc56f 0%, #ffab2e 40%, var(--warning) 100%);
+      box-shadow: inset 0 -1px 0 rgba(255,255,255,0.25), 0 10px 18px rgba(247, 144, 9, 0.18);
+    }
+
+    .task-card.overdue .bar {
+      background: linear-gradient(90deg, #ff9ca6 0%, #ff6b77 40%, var(--danger) 100%);
+      box-shadow: inset 0 -1px 0 rgba(255,255,255,0.25), 0 10px 18px rgba(240, 68, 82, 0.18);
+    }
+
+    .task-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .complete-btn,
+    .delete-btn {
+      flex: 1;
+      padding: 15px 15px;
+      border-radius: 16px;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .complete-btn {
+      background: linear-gradient(180deg, #1fc885 0%, var(--success) 100%);
+      color: white;
+      box-shadow: 0 16px 24px rgba(18, 183, 106, 0.22);
+    }
+
+    .delete-btn {
+      background: rgba(15, 23, 42, 0.05);
+      color: var(--text-soft);
+    }
+
+    .empty-state {
+      padding: 64px 24px;
+      text-align: center;
+      border-radius: 32px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.78);
+      box-shadow: var(--shadow-md);
+      color: var(--text-muted);
+    }
+
+    .empty-state strong {
+      display: block;
+      color: var(--text);
+      font-size: 24px;
+      line-height: 1.25;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+    }
+
+    .empty-state p {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.75;
+      letter-spacing: -0.01em;
+    }
+
+    .floating-add {
+      position: fixed;
+      right: 28px;
+      bottom: 28px;
+      width: 68px;
+      height: 68px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #67a7ff 0%, var(--primary) 100%);
+      color: white;
+      font-size: 34px;
+      line-height: 1;
+      box-shadow: 0 22px 40px rgba(47, 128, 255, 0.34);
+      z-index: 30;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(10, 18, 30, 0.42);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 100;
+    }
+
+    .modal.show {
+      display: flex;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-content {
+      position: relative;
+      width: min(100%, 440px);
+      padding: 24px;
+      border-radius: 30px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(247, 250, 255, 0.92) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 32px 80px rgba(15, 23, 42, 0.2);
+      animation: modalUp 0.26s ease;
+    }
+
+    .modal-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1.08;
+      letter-spacing: -0.045em;
+      font-weight: 850;
+    }
+
+    .modal-desc {
+      margin: 8px 0 0;
+      color: var(--text-soft);
+      font-size: 14px;
+      line-height: 1.65;
+      letter-spacing: -0.01em;
+    }
+
+    .close-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.05);
+      color: var(--text-soft);
+      font-size: 22px;
+      font-weight: 500;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    label {
+      color: var(--text-soft);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    input {
+      width: 100%;
+      padding: 16px 17px;
+      border-radius: 18px;
+      border: 1px solid rgba(15, 23, 42, 0.07);
+      background: rgba(250, 251, 253, 0.96);
+      font: inherit;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.45);
+    }
+
+    input::placeholder { color: #a1aab5; }
+
+    input:focus {
+      background: #ffffff;
+      border-color: rgba(47, 128, 255, 0.28);
+      box-shadow: 0 0 0 6px rgba(47, 128, 255, 0.12);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .add-btn,
+    .modal-actions .delete-btn {
+      flex: 1;
+      width: auto;
+    }
+
+    .add-btn {
+      padding: 15px 15px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #67a7ff 0%, var(--primary) 100%);
+      color: white;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      box-shadow: 0 16px 24px rgba(47, 128, 255, 0.22);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes modalUp {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1060px) {
+      .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 760px) {
+      body { padding-inline: 14px; }
+      .summary { grid-template-columns: 1fr; }
+      .toolbar-shell {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .task-list { grid-template-columns: 1fr; }
+      .floating-add {
+        right: 18px;
+        bottom: 18px;
+        width: 62px;
+        height: 62px;
+        font-size: 30px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .task-card,
+      .summary-card,
+      .toolbar-shell,
+      .modal-content {
+        border-radius: 24px;
+      }
+
+      .task-actions,
+      .modal-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-orb"></div>
+  <div class="bg-orb-2"></div>
+
+  <div class="wrap">
+    <section class="summary" id="summary"></section>
+
+    <section class="toolbar-shell">
+      <div class="toolbar">
+        <button class="ghost-btn active" data-filter="all">전체</button>
+        <button class="ghost-btn" data-filter="active">진행 중</button>
+        <button class="ghost-btn" data-filter="urgent">급한 일정</button>
+        <button class="ghost-btn" data-filter="overdue">마감 지남</button>
+      </div>
+      <div class="toolbar-note">현재 해야 할 일 현황만 간단하게 표시됩니다</div>
+    </section>
+
+    <section id="taskContainer" class="task-list"></section>
+  </div>
+
+  <button class="floating-add" id="openModal" aria-label="할 일 추가">＋</button>
+
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <div class="modal-top">
+        <div>
+          <h3 class="modal-title">할 일을 추가해 주세요</h3>
+          <p class="modal-desc">할 일 이름과 종료 시점을 입력하시면 바로 카드에 반영됩니다.</p>
+        </div>
+        <button class="close-icon" id="closeModal" aria-label="닫기">×</button>
+      </div>
+
+      <div class="form-group">
+        <label for="title">할 일 이름</label>
+        <input id="title" type="text" placeholder="예: 멘토링 발표 자료 완성하기" />
+      </div>
+
+      <div class="form-group">
+        <label for="deadline">종료 시점</label>
+        <input id="deadline" type="datetime-local" />
+      </div>
+
+      <div class="modal-actions">
+        <button id="addTask" class="add-btn">추가하기</button>
+        <button id="cancelModal" class="delete-btn">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      deleteDoc,
+      doc,
+      onSnapshot,
+      query,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCdGzPAoUHasfeuQGN6IXVbCmUQ553sIgA",
+      authDomain: "todolist-374aa.firebaseapp.com",
+      projectId: "todolist-374aa",
+      storageBucket: "todolist-374aa.firebasestorage.app",
+      messagingSenderId: "927844741365",
+      appId: "1:927844741365:web:11be63506b614d8c3d55bc"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const tasksRef = collection(db, "tasks");
+
+    const modal = document.getElementById("modal");
+    const openModal = document.getElementById("openModal");
+    const closeModal = document.getElementById("closeModal");
+    const cancelModal = document.getElementById("cancelModal");
+    const addTaskBtn = document.getElementById("addTask");
+    const titleInput = document.getElementById("title");
+    const deadlineInput = document.getElementById("deadline");
+    const container = document.getElementById("taskContainer");
+    const summary = document.getElementById("summary");
+    const filterButtons = [...document.querySelectorAll(".ghost-btn")];
+
+    let currentFilter = "all";
+    let tasks = [];
+
+    function setDefaultDeadline(hours = 1) {
+      const now = new Date();
+      now.setMinutes(0, 0, 0);
+      now.setHours(now.getHours() + hours);
+      deadlineInput.value = toDatetimeLocal(now);
+    }
+
+    function openTaskModal() {
+      modal.classList.add("show");
+      document.body.style.overflow = "hidden";
+      if (!deadlineInput.value) setDefaultDeadline();
+      setTimeout(() => titleInput.focus(), 10);
+    }
+
+    function closeTaskModal() {
+      modal.classList.remove("show");
+      document.body.style.overflow = "";
+    }
+
+    openModal.onclick = openTaskModal;
+    closeModal.onclick = closeTaskModal;
+    cancelModal.onclick = closeTaskModal;
+
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeTaskModal();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeTaskModal();
+      if (e.key === "Enter" && modal.classList.contains("show") && document.activeElement !== cancelModal) {
+        if (document.activeElement === titleInput || document.activeElement === deadlineInput) {
+          addTask();
+        }
+      }
+    });
+
+    addTaskBtn.onclick = addTask;
+
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        currentFilter = button.dataset.filter;
+        filterButtons.forEach((btn) => btn.classList.remove("active"));
+        button.classList.add("active");
+        render();
+      });
+    });
+
+    container.addEventListener("click", async (e) => {
+      const target = e.target;
+      const id = target.dataset.id;
+      if (!id) return;
+
+      if (target.dataset.action === "complete" || target.dataset.action === "delete") {
+        await deleteDoc(doc(db, "tasks", id));
+      }
+    });
+
+    async function addTask() {
+      const title = titleInput.value.trim();
+      const deadline = deadlineInput.value;
+      if (!title || !deadline) return;
+
+      const deadlineDate = new Date(deadline);
+
+      await addDoc(tasksRef, {
+        title,
+        deadline,
+        deadlineMs: deadlineDate.getTime(),
+        created: Date.now()
+      });
+
+      titleInput.value = "";
+      deadlineInput.value = "";
+      closeTaskModal();
+    }
+
+    function subscribeTasks() {
+      const q = query(tasksRef, orderBy("deadlineMs", "asc"));
+      onSnapshot(q, (snapshot) => {
+        tasks = snapshot.docs.map((item) => ({
+          id: item.id,
+          ...item.data()
+        }));
+        render();
+      });
+    }
+
+    function render() {
+      renderSummary();
+      renderTasks();
+    }
+
+    function renderSummary() {
+      const now = Date.now();
+      const all = tasks.length;
+      const active = tasks.filter((task) => Number(task.deadlineMs) > now).length;
+      const urgent = tasks.filter((task) => {
+        const diff = Number(task.deadlineMs) - now;
+        return diff > 0 && diff <= 24 * 60 * 60 * 1000;
+      }).length;
+      const overdue = tasks.filter((task) => Number(task.deadlineMs) < now).length;
+
+      summary.innerHTML = `
+        <div class="summary-card">
+          <div class="summary-label">전체 일정</div>
+          <div class="summary-value">${all}</div>
+          <div class="summary-sub">등록된 해야 할 일 전체입니다.</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">진행 중</div>
+          <div class="summary-value">${active}</div>
+          <div class="summary-sub">현재 마감 전인 일정입니다.</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">급한 일정</div>
+          <div class="summary-value">${urgent}</div>
+          <div class="summary-sub">24시간 안에 마감되는 일정입니다.</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">마감 지남</div>
+          <div class="summary-value">${overdue}</div>
+          <div class="summary-sub">예정 시점을 지난 일정입니다.</div>
+        </div>
+      `;
+    }
+
+    function renderTasks() {
+      const now = Date.now();
+      let filtered = tasks.filter((task) => {
+        const diff = Number(task.deadlineMs) - now;
+        if (currentFilter === "active") return diff > 0;
+        if (currentFilter === "urgent") return diff > 0 && diff <= 24 * 60 * 60 * 1000;
+        if (currentFilter === "overdue") return diff < 0;
+        return true;
+      });
+
+      filtered.sort((a, b) => Number(a.deadlineMs) - Number(b.deadlineMs));
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <strong>표시할 할 일이 없습니다</strong>
+            <p>오른쪽 아래의 플러스 버튼을 눌러 첫 번째 할 일을 추가해 주세요.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map((task, index) => createTaskCard(task, index)).join("");
+    }
+
+    function createTaskCard(task, index) {
+      const state = getTaskState(task);
+
+      return `
+        <article class="task-card ${state.statusClass}" data-task-id="${task.id}">
+          <div class="task-topline">
+            <span class="task-index">${String(index + 1).padStart(2, "0")}</span>
+            <span class="status-pill ${state.statusClass} js-status-pill">${state.statusText}</span>
+          </div>
+
+          <h3 class="task-title">${escapeHtml(task.title)}</h3>
+
+          <div class="task-meta">
+            <span class="meta-chip">마감 ${formatDate(new Date(task.deadline))}</span>
+            <span class="meta-chip">추가 ${formatDate(new Date(task.created))}</span>
+          </div>
+
+          <div class="progress-shell">
+            <div class="progress-row">
+              <div>
+                <div class="progress-title js-progress-title">${state.remainingText}</div>
+                <div class="progress-detail js-progress-detail">${state.detailText}</div>
+              </div>
+              <div class="progress-percent js-progress-percent">${Math.round(state.percent)}%</div>
+            </div>
+            <div class="progress">
+              <div class="bar js-progress-bar" style="width:${state.percent}%"></div>
+            </div>
+          </div>
+
+          <div class="task-actions">
+            <button class="complete-btn" data-action="complete" data-id="${task.id}">종료</button>
+            <button class="delete-btn" data-action="delete" data-id="${task.id}">삭제</button>
+          </div>
+        </article>
+      `;
+    }
+
+    function formatDuration(ms) {
+      const totalMinutes = Math.max(1, Math.floor(ms / (1000 * 60)));
+      const days = Math.floor(totalMinutes / (60 * 24));
+      const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+      const minutes = totalMinutes % 60;
+
+      if (days > 0) return `${days}일 ${hours}시간`;
+      if (hours > 0) return `${hours}시간 ${minutes}분`;
+      return `${minutes}분`;
+    }
+
+    function formatDate(date) {
+      const y = date.getFullYear();
+      const m = date.getMonth() + 1;
+      const d = date.getDate();
+      const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+      const day = dayNames[date.getDay()];
+      const hh = String(date.getHours()).padStart(2, "0");
+      const mm = String(date.getMinutes()).padStart(2, "0");
+      return `${y}.${m}.${d}(${day}) ${hh}:${mm}`;
+    }
+
+    function toDatetimeLocal(date) {
+      const pad = (n) => String(n).padStart(2, "0");
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function getTaskState(task) {
+      const now = Date.now();
+      const end = Number(task.deadlineMs);
+      const start = Number(task.created);
+      const diff = end - now;
+      const overdue = diff < 0;
+      const urgent = !overdue && diff <= 24 * 60 * 60 * 1000;
+
+      let percent = ((now - start) / (end - start)) * 100;
+      percent = Math.min(100, Math.max(0, percent));
+      if (!Number.isFinite(percent)) percent = 100;
+
+      return {
+        overdue,
+        urgent,
+        percent,
+        statusClass: overdue ? "overdue" : urgent ? "urgent" : "active",
+        statusText: overdue ? "마감 지남" : urgent ? "급한 일정" : "진행 중",
+        remainingText: overdue ? `${formatDuration(Math.abs(diff))} 지남` : `${formatDuration(diff)} 남음`,
+        detailText: overdue ? "예정된 종료 시점을 지났습니다" : `시작 후 ${Math.round(percent)}% 진행된 상태입니다`
+      };
+    }
+
+    function refreshTaskLiveState() {
+      const cards = [...container.querySelectorAll(".task-card[data-task-id]")];
+
+      cards.forEach((card) => {
+        const taskId = card.dataset.taskId;
+        const task = tasks.find((item) => item.id === taskId);
+        if (!task) return;
+
+        const state = getTaskState(task);
+        card.classList.remove("active", "urgent", "overdue");
+        card.classList.add(state.statusClass);
+
+        const statusPill = card.querySelector(".js-status-pill");
+        const progressTitle = card.querySelector(".js-progress-title");
+        const progressDetail = card.querySelector(".js-progress-detail");
+        const progressPercent = card.querySelector(".js-progress-percent");
+        const progressBar = card.querySelector(".js-progress-bar");
+
+        if (statusPill) {
+          statusPill.className = `status-pill ${state.statusClass} js-status-pill`;
+          statusPill.textContent = state.statusText;
+        }
+        if (progressTitle) progressTitle.textContent = state.remainingText;
+        if (progressDetail) progressDetail.textContent = state.detailText;
+        if (progressPercent) progressPercent.textContent = `${Math.round(state.percent)}%`;
+        if (progressBar) progressBar.style.width = `${state.percent}%`;
+      });
+    }
+
+    setDefaultDeadline();
+    subscribeTasks();
+    setInterval(() => {
+      renderSummary();
+      refreshTaskLiveState();
+    }, 60000);
+  </script>
+</body>
+</html>
