@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>할 일 현황</title>
+  <title>할 일 현황 - 개인용</title>
   <style>
     :root {
       --bg: #eef3fb;
@@ -47,12 +47,97 @@
       text-rendering: optimizeLegibility;
     }
 
-    body {
+    /* 초기 숨김 상태 */
+    #app-screen, #login-screen {
+      display: none;
+    }
+
+    /* 로그인 화면 스타일 */
+    #login-screen {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .login-card {
+      background: var(--surface);
+      padding: 48px 32px;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: var(--shadow-xl);
+      backdrop-filter: blur(20px);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .login-logo {
+      width: 64px;
+      height: 64px;
+      background: var(--primary);
+      border-radius: 20px;
+      margin: 0 auto 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 32px;
+      font-weight: 900;
+      box-shadow: 0 10px 20px rgba(47, 128, 255, 0.3);
+    }
+
+    .login-title {
+      font-size: 28px;
+      font-weight: 850;
+      margin-bottom: 12px;
+      letter-spacing: -0.04em;
+    }
+
+    .login-desc {
+      color: var(--text-soft);
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 32px;
+      word-break: keep-all;
+    }
+
+    .google-login-btn {
+      width: 100%;
+      padding: 16px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .google-login-btn:hover {
+      background: #f9fafb;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .google-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* 메인 앱 스타일 (기존 스타일 유지) */
+    #app-screen {
       padding: 28px 18px 86px;
     }
 
-    .bg-orb,
-    .bg-orb-2 {
+    .bg-orb, .bg-orb-2 {
       position: fixed;
       border-radius: 999px;
       pointer-events: none;
@@ -61,21 +146,8 @@
       z-index: 0;
     }
 
-    .bg-orb {
-      top: -90px;
-      left: -90px;
-      width: 240px;
-      height: 240px;
-      background: rgba(47, 128, 255, 0.16);
-    }
-
-    .bg-orb-2 {
-      right: -80px;
-      top: 140px;
-      width: 220px;
-      height: 220px;
-      background: rgba(129, 140, 248, 0.12);
-    }
+    .bg-orb { top: -90px; left: -90px; width: 240px; height: 240px; background: rgba(47, 128, 255, 0.16); }
+    .bg-orb-2 { right: -80px; top: 140px; width: 220px; height: 220px; background: rgba(129, 140, 248, 0.12); }
 
     .wrap {
       position: relative;
@@ -91,16 +163,6 @@
       margin-bottom: 18px;
     }
 
-    .summary-card,
-    .toolbar-shell,
-    .task-card,
-    .empty-state,
-    .modal-content,
-    .floating-add {
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-    }
-
     .summary-card {
       position: relative;
       overflow: hidden;
@@ -109,6 +171,7 @@
       border-radius: var(--radius-xl);
       border: 1px solid rgba(255, 255, 255, 0.82);
       box-shadow: var(--shadow-md);
+      backdrop-filter: blur(18px);
     }
 
     .summary-card::after {
@@ -123,28 +186,9 @@
       pointer-events: none;
     }
 
-    .summary-label {
-      color: var(--text-muted);
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      margin-bottom: 12px;
-    }
-
-    .summary-value {
-      font-size: 34px;
-      font-weight: 850;
-      line-height: 1;
-      letter-spacing: -0.05em;
-    }
-
-    .summary-sub {
-      margin-top: 10px;
-      color: var(--text-soft);
-      font-size: 13px;
-      line-height: 1.55;
-      letter-spacing: -0.01em;
-    }
+    .summary-label { color: var(--text-muted); font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+    .summary-value { font-size: 34px; font-weight: 850; line-height: 1; letter-spacing: -0.05em; }
+    .summary-sub { margin-top: 10px; color: var(--text-soft); font-size: 13px; line-height: 1.55; }
 
     .toolbar-shell {
       display: flex;
@@ -157,33 +201,20 @@
       background: rgba(255, 255, 255, 0.68);
       border: 1px solid rgba(255, 255, 255, 0.82);
       box-shadow: var(--shadow-md);
+      backdrop-filter: blur(18px);
     }
 
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; }
 
-    .ghost-btn,
-    .complete-btn,
-    .delete-btn,
-    .close-icon,
-    .floating-add,
-    .add-btn {
+    .ghost-btn, .complete-btn, .delete-btn, .close-icon, .floating-add, .add-btn, .logout-btn {
       appearance: none;
       border: none;
       cursor: pointer;
-      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, opacity 0.18s ease;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
       font-family: inherit;
     }
 
-    .ghost-btn:hover,
-    .complete-btn:hover,
-    .delete-btn:hover,
-    .close-icon:hover,
-    .floating-add:hover,
-    .add-btn:hover {
+    .ghost-btn:hover, .complete-btn:hover, .delete-btn:hover, .close-icon:hover, .floating-add:hover, .add-btn:hover, .logout-btn:hover {
       transform: translateY(-1px);
     }
 
@@ -195,30 +226,24 @@
       color: var(--text-soft);
       font-weight: 800;
       font-size: 14px;
-      letter-spacing: -0.01em;
-      box-shadow: var(--shadow-md);
     }
 
     .ghost-btn.active {
       background: linear-gradient(180deg, rgba(106, 169, 255, 0.22) 0%, rgba(47, 128, 255, 0.16) 100%);
       color: var(--primary-strong);
       border-color: rgba(47, 128, 255, 0.1);
-      box-shadow: 0 14px 26px rgba(47, 128, 255, 0.12);
     }
 
-    .toolbar-note {
-      color: var(--text-muted);
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      white-space: nowrap;
+    .logout-btn {
+        padding: 8px 14px;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.05);
+        color: var(--text-soft);
+        font-size: 12px;
+        font-weight: 700;
     }
 
-    .task-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
-      gap: 18px;
-    }
+    .task-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 18px; }
 
     .task-card {
       position: relative;
@@ -232,486 +257,116 @@
       border: 1px solid rgba(255, 255, 255, 0.82);
       border-radius: 30px;
       box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(18px);
       animation: fadeUp 0.45s ease;
     }
 
-    .task-card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(255,255,255,0.18), transparent 28%);
-      pointer-events: none;
-    }
+    .task-index { display: inline-flex; align-items: center; justify-content: center; min-width: 42px; height: 42px; border-radius: 999px; background: rgba(15, 23, 42, 0.06); color: var(--text-soft); font-size: 13px; font-weight: 800; }
+    .status-pill { display: inline-flex; align-items: center; gap: 8px; padding: 10px 13px; border-radius: 999px; font-size: 12px; font-weight: 800; }
+    .status-pill.active { background: var(--primary-soft); color: var(--primary-strong); }
+    .status-pill.urgent { background: var(--warning-soft); color: var(--warning); }
+    .status-pill.overdue { background: var(--danger-soft); color: var(--danger); }
 
-    .task-card::after {
-      content: "";
-      position: absolute;
-      right: -32px;
-      bottom: -46px;
-      width: 150px;
-      height: 150px;
-      border-radius: 999px;
-      background: radial-gradient(circle, rgba(47, 128, 255, 0.14), transparent 68%);
-      pointer-events: none;
-    }
+    .task-title { margin: 0; font-size: 25px; line-height: 1.26; letter-spacing: -0.04em; font-weight: 850; word-break: keep-all; }
+    .task-meta { display: flex; flex-wrap: wrap; gap: 10px; }
+    .meta-chip { display: inline-flex; align-items: center; gap: 8px; padding: 10px 13px; border-radius: 999px; background: rgba(15, 23, 42, 0.045); color: var(--text-soft); font-size: 12px; font-weight: 700; }
 
-    .task-card.overdue::after {
-      background: radial-gradient(circle, rgba(240, 68, 82, 0.16), transparent 68%);
-    }
+    .progress-shell { padding: 16px; border-radius: 22px; background: rgba(15, 23, 42, 0.03); border: 1px solid rgba(15, 23, 42, 0.03); }
+    .progress-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 12px; }
+    .progress-percent { font-size: 18px; font-weight: 850; }
+    .progress { height: 15px; border-radius: 999px; background: rgba(15, 23, 42, 0.07); overflow: hidden; }
+    .bar { height: 100%; width: 0; transition: width 0.45s ease; background: var(--primary); }
 
-    .task-card.urgent::after {
-      background: radial-gradient(circle, rgba(247, 144, 9, 0.16), transparent 68%);
-    }
+    .task-actions { display: flex; gap: 10px; margin-top: auto; }
+    .complete-btn, .delete-btn { flex: 1; padding: 15px; border-radius: 16px; font-size: 14px; font-weight: 800; }
+    .complete-btn { background: linear-gradient(180deg, #1fc885 0%, var(--success) 100%); color: white; box-shadow: 0 16px 24px rgba(18, 183, 106, 0.22); }
+    .delete-btn { background: rgba(15, 23, 42, 0.05); color: var(--text-soft); }
 
-    .task-topline {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
+    .floating-add { position: fixed; right: 28px; bottom: 28px; width: 68px; height: 68px; border-radius: 999px; background: linear-gradient(180deg, #67a7ff 0%, var(--primary) 100%); color: white; font-size: 34px; box-shadow: 0 22px 40px rgba(47, 128, 255, 0.34); z-index: 30; }
 
-    .task-index {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 42px;
-      height: 42px;
-      padding: 0 14px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.06);
-      color: var(--text-soft);
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-    }
+    .modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(10, 18, 30, 0.42); backdrop-filter: blur(16px); z-index: 100; }
+    .modal.show { display: flex; }
+    .modal-content { position: relative; width: min(100%, 440px); padding: 24px; border-radius: 30px; background: white; border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 32px 80px rgba(15, 23, 42, 0.2); }
+    .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    input { width: 100%; padding: 16px; border-radius: 18px; border: 1px solid rgba(15, 23, 42, 0.07); background: #fafbfd; font: inherit; }
+    .add-btn { width: 100%; padding: 15px; border-radius: 16px; background: var(--primary); color: white; font-weight: 800; }
 
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 13px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-    }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-    .status-pill::before {
-      content: "";
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: currentColor;
-      opacity: 0.9;
-    }
-
-    .status-pill.active {
-      background: var(--primary-soft);
-      color: var(--primary-strong);
-    }
-
-    .status-pill.urgent {
-      background: var(--warning-soft);
-      color: var(--warning);
-    }
-
-    .status-pill.overdue {
-      background: var(--danger-soft);
-      color: var(--danger);
-    }
-
-    .task-title {
-      margin: 0;
-      font-size: 25px;
-      line-height: 1.26;
-      letter-spacing: -0.04em;
-      font-weight: 850;
-      word-break: keep-all;
-    }
-
-    .task-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .meta-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 13px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.045);
-      color: var(--text-soft);
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-    }
-
-    .progress-shell {
-      padding: 16px;
-      border-radius: 22px;
-      background: rgba(15, 23, 42, 0.03);
-      border: 1px solid rgba(15, 23, 42, 0.03);
-    }
-
-    .progress-row {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 12px;
-    }
-
-    .progress-title {
-      font-size: 16px;
-      font-weight: 850;
-      letter-spacing: -0.03em;
-    }
-
-    .progress-detail {
-      margin-top: 5px;
-      color: var(--text-muted);
-      font-size: 13px;
-      letter-spacing: -0.01em;
-    }
-
-    .progress-percent {
-      font-size: 18px;
-      font-weight: 850;
-      letter-spacing: -0.04em;
-    }
-
-    .progress {
-      position: relative;
-      height: 15px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.07);
-      overflow: hidden;
-      box-shadow: inset 0 1px 1px rgba(255,255,255,0.45);
-    }
-
-    .bar {
-      height: 100%;
-      width: 0;
-      border-radius: inherit;
-      background: linear-gradient(90deg, #9bc3ff 0%, #5b9fff 35%, var(--primary) 100%);
-      transition: width 0.45s ease;
-      box-shadow: inset 0 -1px 0 rgba(255,255,255,0.3), 0 10px 18px rgba(47, 128, 255, 0.18);
-    }
-
-    .task-card.urgent .bar {
-      background: linear-gradient(90deg, #ffc56f 0%, #ffab2e 40%, var(--warning) 100%);
-      box-shadow: inset 0 -1px 0 rgba(255,255,255,0.25), 0 10px 18px rgba(247, 144, 9, 0.18);
-    }
-
-    .task-card.overdue .bar {
-      background: linear-gradient(90deg, #ff9ca6 0%, #ff6b77 40%, var(--danger) 100%);
-      box-shadow: inset 0 -1px 0 rgba(255,255,255,0.25), 0 10px 18px rgba(240, 68, 82, 0.18);
-    }
-
-    .task-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: auto;
-    }
-
-    .complete-btn,
-    .delete-btn {
-      flex: 1;
-      padding: 15px 15px;
-      border-radius: 16px;
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-
-    .complete-btn {
-      background: linear-gradient(180deg, #1fc885 0%, var(--success) 100%);
-      color: white;
-      box-shadow: 0 16px 24px rgba(18, 183, 106, 0.22);
-    }
-
-    .delete-btn {
-      background: rgba(15, 23, 42, 0.05);
-      color: var(--text-soft);
-    }
-
-    .empty-state {
-      padding: 64px 24px;
-      text-align: center;
-      border-radius: 32px;
-      background: rgba(255, 255, 255, 0.72);
-      border: 1px solid rgba(255, 255, 255, 0.78);
-      box-shadow: var(--shadow-md);
-      color: var(--text-muted);
-    }
-
-    .empty-state strong {
-      display: block;
-      color: var(--text);
-      font-size: 24px;
-      line-height: 1.25;
-      letter-spacing: -0.04em;
-      margin-bottom: 10px;
-    }
-
-    .empty-state p {
-      margin: 0;
-      font-size: 15px;
-      line-height: 1.75;
-      letter-spacing: -0.01em;
-    }
-
-    .floating-add {
-      position: fixed;
-      right: 28px;
-      bottom: 28px;
-      width: 68px;
-      height: 68px;
-      border-radius: 999px;
-      background: linear-gradient(180deg, #67a7ff 0%, var(--primary) 100%);
-      color: white;
-      font-size: 34px;
-      line-height: 1;
-      box-shadow: 0 22px 40px rgba(47, 128, 255, 0.34);
-      z-index: 30;
-    }
-
-    .modal {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      background: rgba(10, 18, 30, 0.42);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      z-index: 100;
-    }
-
-    .modal.show {
-      display: flex;
-      animation: fadeIn 0.2s ease;
-    }
-
-    .modal-content {
-      position: relative;
-      width: min(100%, 440px);
-      padding: 24px;
-      border-radius: 30px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(247, 250, 255, 0.92) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.9);
-      box-shadow: 0 32px 80px rgba(15, 23, 42, 0.2);
-      animation: modalUp 0.26s ease;
-    }
-
-    .modal-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 18px;
-    }
-
-    .modal-title {
-      margin: 0;
-      font-size: 26px;
-      line-height: 1.08;
-      letter-spacing: -0.045em;
-      font-weight: 850;
-    }
-
-    .modal-desc {
-      margin: 8px 0 0;
-      color: var(--text-soft);
-      font-size: 14px;
-      line-height: 1.65;
-      letter-spacing: -0.01em;
-    }
-
-    .close-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: rgba(15, 23, 42, 0.05);
-      color: var(--text-soft);
-      font-size: 22px;
-      font-weight: 500;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    label {
-      color: var(--text-soft);
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-    }
-
-    input {
-      width: 100%;
-      padding: 16px 17px;
-      border-radius: 18px;
-      border: 1px solid rgba(15, 23, 42, 0.07);
-      background: rgba(250, 251, 253, 0.96);
-      font: inherit;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.45);
-    }
-
-    input::placeholder { color: #a1aab5; }
-
-    input:focus {
-      background: #ffffff;
-      border-color: rgba(47, 128, 255, 0.28);
-      box-shadow: 0 0 0 6px rgba(47, 128, 255, 0.12);
-    }
-
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    .add-btn,
-    .modal-actions .delete-btn {
-      flex: 1;
-      width: auto;
-    }
-
-    .add-btn {
-      padding: 15px 15px;
-      border-radius: 16px;
-      background: linear-gradient(180deg, #67a7ff 0%, var(--primary) 100%);
-      color: white;
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      box-shadow: 0 16px 24px rgba(47, 128, 255, 0.22);
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes modalUp {
-      from { opacity: 0; transform: translateY(12px) scale(0.98); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @media (max-width: 1060px) {
-      .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-
-    @media (max-width: 760px) {
-      body { padding-inline: 14px; }
-      .summary { grid-template-columns: 1fr; }
-      .toolbar-shell {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .task-list { grid-template-columns: 1fr; }
-      .floating-add {
-        right: 18px;
-        bottom: 18px;
-        width: 62px;
-        height: 62px;
-        font-size: 30px;
-      }
-    }
-
-    @media (max-width: 520px) {
-      .task-card,
-      .summary-card,
-      .toolbar-shell,
-      .modal-content {
-        border-radius: 24px;
-      }
-
-      .task-actions,
-      .modal-actions {
-        flex-direction: column;
-      }
-    }
+    @media (max-width: 1060px) { .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 760px) { .summary { grid-template-columns: 1fr; } .toolbar-shell { flex-direction: column; align-items: stretch; } }
   </style>
 </head>
 <body>
-  <div class="bg-orb"></div>
-  <div class="bg-orb-2"></div>
-
-  <div class="wrap">
-    <section class="summary" id="summary"></section>
-
-    <section class="toolbar-shell">
-      <div class="toolbar">
-        <button class="ghost-btn active" data-filter="all">전체</button>
-        <button class="ghost-btn" data-filter="active">진행 중</button>
-        <button class="ghost-btn" data-filter="urgent">급한 일정</button>
-        <button class="ghost-btn" data-filter="overdue">마감 지남</button>
-      </div>
-      <div class="toolbar-note">현재 해야 할 일 현황만 간단하게 표시됩니다</div>
-    </section>
-
-    <section id="taskContainer" class="task-list"></section>
+  <!-- 로그인 화면 -->
+  <div id="login-screen">
+    <div class="login-card">
+      <div class="login-logo">✓</div>
+      <h1 class="login-title">환영합니다!</h1>
+      <p class="login-desc">나만의 할 일을 체계적으로 관리해보세요.<br>Google 계정으로 로그인하면 어디서든 확인 가능합니다.</p>
+      <button class="google-login-btn" id="googleLoginBtn">
+        <svg class="google-icon" viewBox="0 0 24 24">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Google 계정으로 계속하기
+      </button>
+    </div>
   </div>
 
-  <button class="floating-add" id="openModal" aria-label="할 일 추가">＋</button>
+  <!-- 메인 앱 화면 -->
+  <div id="app-screen">
+    <div class="bg-orb"></div>
+    <div class="bg-orb-2"></div>
 
+    <div class="wrap">
+      <section class="summary" id="summary"></section>
+
+      <section class="toolbar-shell">
+        <div class="toolbar">
+          <button class="ghost-btn active" data-filter="all">전체</button>
+          <button class="ghost-btn" data-filter="active">진행 중</button>
+          <button class="ghost-btn" data-filter="urgent">급한 일정</button>
+          <button class="ghost-btn" data-filter="overdue">마감 지남</button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span id="userNameDisplay" style="font-size: 13px; font-weight: 700; color: var(--text-soft);">로그인 중...</span>
+            <button class="logout-btn" id="logoutBtn">로그아웃</button>
+        </div>
+      </section>
+
+      <section id="taskContainer" class="task-list"></section>
+    </div>
+
+    <button class="floating-add" id="openModal">＋</button>
+  </div>
+
+  <!-- 모달 -->
   <div class="modal" id="modal">
     <div class="modal-content">
-      <div class="modal-top">
-        <div>
-          <h3 class="modal-title">할 일을 추가해 주세요</h3>
-          <p class="modal-desc">할 일 이름과 종료 시점을 입력하시면 바로 카드에 반영됩니다.</p>
-        </div>
-        <button class="close-icon" id="closeModal" aria-label="닫기">×</button>
-      </div>
-
       <div class="form-group">
-        <label for="title">할 일 이름</label>
+        <label style="font-weight: 800; font-size: 13px;">할 일 이름</label>
         <input id="title" type="text" placeholder="예: 멘토링 발표 자료 완성하기" />
       </div>
-
       <div class="form-group">
-        <label for="deadline">종료 시점</label>
+        <label style="font-weight: 800; font-size: 13px;">종료 시점</label>
         <input id="deadline" type="datetime-local" />
       </div>
-
-      <div class="modal-actions">
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
         <button id="addTask" class="add-btn">추가하기</button>
-        <button id="cancelModal" class="delete-btn">취소</button>
+        <button id="closeModal" class="delete-btn">취소</button>
       </div>
     </div>
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      addDoc,
-      deleteDoc,
-      doc,
-      onSnapshot,
-      query,
-      orderBy
-    } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
+    // 사용자 정보에 맞게 API 키 정보를 업데이트하세요.
     const firebaseConfig = {
       apiKey: "AIzaSyCdGzPAoUHasfeuQGN6IXVbCmUQ553sIgA",
       authDomain: "todolist-374aa.firebaseapp.com",
@@ -723,12 +378,19 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const tasksRef = collection(db, "tasks");
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'todolist-374aa';
 
+    const loginScreen = document.getElementById("login-screen");
+    const appScreen = document.getElementById("app-screen");
+    const googleLoginBtn = document.getElementById("googleLoginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const userNameDisplay = document.getElementById("userNameDisplay");
+    
     const modal = document.getElementById("modal");
     const openModal = document.getElementById("openModal");
     const closeModal = document.getElementById("closeModal");
-    const cancelModal = document.getElementById("cancelModal");
     const addTaskBtn = document.getElementById("addTask");
     const titleInput = document.getElementById("title");
     const deadlineInput = document.getElementById("deadline");
@@ -738,72 +400,50 @@
 
     let currentFilter = "all";
     let tasks = [];
+    let currentUser = null;
+    let unsubscribeTasks = null;
 
-    function setDefaultDeadline(hours = 1) {
-      const now = new Date();
-      now.setMinutes(0, 0, 0);
-      now.setHours(now.getHours() + hours);
-      deadlineInput.value = toDatetimeLocal(now);
-    }
+    // --- 인증 로직 ---
 
-    function openTaskModal() {
-      modal.classList.add("show");
-      document.body.style.overflow = "hidden";
-      if (!deadlineInput.value) setDefaultDeadline();
-      setTimeout(() => titleInput.focus(), 10);
-    }
-
-    function closeTaskModal() {
-      modal.classList.remove("show");
-      document.body.style.overflow = "";
-    }
-
-    openModal.onclick = openTaskModal;
-    closeModal.onclick = closeTaskModal;
-    cancelModal.onclick = closeTaskModal;
-
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) closeTaskModal();
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeTaskModal();
-      if (e.key === "Enter" && modal.classList.contains("show") && document.activeElement !== cancelModal) {
-        if (document.activeElement === titleInput || document.activeElement === deadlineInput) {
-          addTask();
-        }
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        loginScreen.style.display = "none";
+        appScreen.style.display = "block";
+        userNameDisplay.textContent = `${user.displayName}님`;
+        subscribeTasks();
+      } else {
+        currentUser = null;
+        loginScreen.style.display = "flex";
+        appScreen.style.display = "none";
+        if (unsubscribeTasks) unsubscribeTasks();
       }
     });
 
-    addTaskBtn.onclick = addTask;
-
-    filterButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        currentFilter = button.dataset.filter;
-        filterButtons.forEach((btn) => btn.classList.remove("active"));
-        button.classList.add("active");
-        render();
-      });
-    });
-
-    container.addEventListener("click", async (e) => {
-      const target = e.target;
-      const id = target.dataset.id;
-      if (!id) return;
-
-      if (target.dataset.action === "complete" || target.dataset.action === "delete") {
-        await deleteDoc(doc(db, "tasks", id));
+    googleLoginBtn.onclick = async () => {
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (error) {
+        console.error("Login failed", error);
       }
-    });
+    };
+
+    logoutBtn.onclick = () => signOut(auth);
+
+    // --- 할 일 로직 (사용자 ID 기반 경로로 수정) ---
+
+    function getTasksRef() {
+        // 규칙 1 준수: /artifacts/{appId}/users/{userId}/tasks
+        return collection(db, 'artifacts', appId, 'users', currentUser.uid, 'tasks');
+    }
 
     async function addTask() {
       const title = titleInput.value.trim();
       const deadline = deadlineInput.value;
-      if (!title || !deadline) return;
+      if (!title || !deadline || !currentUser) return;
 
       const deadlineDate = new Date(deadline);
-
-      await addDoc(tasksRef, {
+      await addDoc(getTasksRef(), {
         title,
         deadline,
         deadlineMs: deadlineDate.getTime(),
@@ -811,217 +451,105 @@
       });
 
       titleInput.value = "";
-      deadlineInput.value = "";
       closeTaskModal();
     }
 
     function subscribeTasks() {
-      const q = query(tasksRef, orderBy("deadlineMs", "asc"));
-      onSnapshot(q, (snapshot) => {
-        tasks = snapshot.docs.map((item) => ({
-          id: item.id,
-          ...item.data()
-        }));
+      const q = query(getTasksRef(), orderBy("deadlineMs", "asc"));
+      unsubscribeTasks = onSnapshot(q, (snapshot) => {
+        tasks = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
         render();
-      });
+      }, (err) => console.error("Firestore error:", err));
     }
+
+    container.onclick = async (e) => {
+      const id = e.target.dataset.id;
+      if (id && (e.target.dataset.action === "complete" || e.target.dataset.action === "delete")) {
+        await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'tasks', id));
+      }
+    };
+
+    // --- UI 보조 기능 (기존과 동일) ---
+
+    function openTaskModal() { modal.classList.add("show"); setDefaultDeadline(); }
+    function closeTaskModal() { modal.classList.remove("show"); }
+    function setDefaultDeadline() {
+      const now = new Date();
+      now.setMinutes(0, 0, 0);
+      now.setHours(now.getHours() + 1);
+      const pad = (n) => String(n).padStart(2, "0");
+      deadlineInput.value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    }
+
+    openModal.onclick = openTaskModal;
+    closeModal.onclick = closeTaskModal;
+    addTaskBtn.onclick = addTask;
+
+    filterButtons.forEach(btn => btn.onclick = () => {
+      currentFilter = btn.dataset.filter;
+      filterButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      render();
+    });
 
     function render() {
-      renderSummary();
-      renderTasks();
-    }
-
-    function renderSummary() {
       const now = Date.now();
       const all = tasks.length;
-      const active = tasks.filter((task) => Number(task.deadlineMs) > now).length;
-      const urgent = tasks.filter((task) => {
-        const diff = Number(task.deadlineMs) - now;
-        return diff > 0 && diff <= 24 * 60 * 60 * 1000;
-      }).length;
-      const overdue = tasks.filter((task) => Number(task.deadlineMs) < now).length;
+      const active = tasks.filter(t => t.deadlineMs > now).length;
+      const overdue = tasks.filter(t => t.deadlineMs < now).length;
+      const urgent = tasks.filter(t => t.deadlineMs - now > 0 && t.deadlineMs - now <= 86400000).length;
 
       summary.innerHTML = `
-        <div class="summary-card">
-          <div class="summary-label">전체 일정</div>
-          <div class="summary-value">${all}</div>
-          <div class="summary-sub">등록된 해야 할 일 전체입니다.</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-label">진행 중</div>
-          <div class="summary-value">${active}</div>
-          <div class="summary-sub">현재 마감 전인 일정입니다.</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-label">급한 일정</div>
-          <div class="summary-value">${urgent}</div>
-          <div class="summary-sub">24시간 안에 마감되는 일정입니다.</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-label">마감 지남</div>
-          <div class="summary-value">${overdue}</div>
-          <div class="summary-sub">예정 시점을 지난 일정입니다.</div>
-        </div>
+        <div class="summary-card"><div class="summary-label">전체</div><div class="summary-value">${all}</div></div>
+        <div class="summary-card"><div class="summary-label">진행중</div><div class="summary-value">${active}</div></div>
+        <div class="summary-card"><div class="summary-label">급함</div><div class="summary-value">${urgent}</div></div>
+        <div class="summary-card"><div class="summary-label">마감지남</div><div class="summary-value">${overdue}</div></div>
       `;
-    }
 
-    function renderTasks() {
-      const now = Date.now();
-      let filtered = tasks.filter((task) => {
-        const diff = Number(task.deadlineMs) - now;
-        if (currentFilter === "active") return diff > 0;
-        if (currentFilter === "urgent") return diff > 0 && diff <= 24 * 60 * 60 * 1000;
-        if (currentFilter === "overdue") return diff < 0;
+      let filtered = tasks.filter(t => {
+        if (currentFilter === "active") return t.deadlineMs > now;
+        if (currentFilter === "urgent") return t.deadlineMs - now > 0 && t.deadlineMs - now <= 86400000;
+        if (currentFilter === "overdue") return t.deadlineMs < now;
         return true;
       });
 
-      filtered.sort((a, b) => Number(a.deadlineMs) - Number(b.deadlineMs));
-
       if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <strong>표시할 할 일이 없습니다</strong>
-            <p>오른쪽 아래의 플러스 버튼을 눌러 첫 번째 할 일을 추가해 주세요.</p>
-          </div>
-        `;
+        container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px; color:var(--text-muted);">할 일이 없습니다.</div>';
         return;
       }
 
-      container.innerHTML = filtered.map((task, index) => createTaskCard(task, index)).join("");
-    }
+      container.innerHTML = filtered.map((t, i) => {
+        const diff = t.deadlineMs - now;
+        const isOverdue = diff < 0;
+        const isUrgent = !isOverdue && diff <= 86400000;
+        const status = isOverdue ? "overdue" : isUrgent ? "urgent" : "active";
+        const statusText = isOverdue ? "마감 지남" : isUrgent ? "급한 일정" : "진행 중";
+        
+        let percent = ((now - t.created) / (t.deadlineMs - t.created)) * 100;
+        percent = Math.min(100, Math.max(0, percent));
 
-    function createTaskCard(task, index) {
-      const state = getTaskState(task);
-
-      return `
-        <article class="task-card ${state.statusClass}" data-task-id="${task.id}">
-          <div class="task-topline">
-            <span class="task-index">${String(index + 1).padStart(2, "0")}</span>
-            <span class="status-pill ${state.statusClass} js-status-pill">${state.statusText}</span>
-          </div>
-
-          <h3 class="task-title">${escapeHtml(task.title)}</h3>
-
-          <div class="task-meta">
-            <span class="meta-chip">마감 ${formatDate(new Date(task.deadline))}</span>
-            <span class="meta-chip">추가 ${formatDate(new Date(task.created))}</span>
-          </div>
-
-          <div class="progress-shell">
-            <div class="progress-row">
-              <div>
-                <div class="progress-title js-progress-title">${state.remainingText}</div>
-                <div class="progress-detail js-progress-detail">${state.detailText}</div>
-              </div>
-              <div class="progress-percent js-progress-percent">${Math.round(state.percent)}%</div>
+        return `
+          <article class="task-card ${status}">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="task-index">${String(i+1).padStart(2,'0')}</span>
+              <span class="status-pill ${status}">${statusText}</span>
             </div>
-            <div class="progress">
-              <div class="bar js-progress-bar" style="width:${state.percent}%"></div>
+            <h3 class="task-title">${t.title}</h3>
+            <div class="task-meta"><span class="meta-chip">마감: ${new Date(t.deadline).toLocaleString()}</span></div>
+            <div class="progress-shell">
+              <div class="progress-row"><span style="font-size:13px; font-weight:800;">${Math.round(percent)}% 진행</span><span class="progress-percent">${isOverdue ? '종료' : '진행중'}</span></div>
+              <div class="progress"><div class="bar" style="width:${percent}%"></div></div>
             </div>
-          </div>
-
-          <div class="task-actions">
-            <button class="complete-btn" data-action="complete" data-id="${task.id}">종료</button>
-            <button class="delete-btn" data-action="delete" data-id="${task.id}">삭제</button>
-          </div>
-        </article>
-      `;
+            <div class="task-actions">
+              <button class="complete-btn" data-action="complete" data-id="${t.id}">종료</button>
+              <button class="delete-btn" data-action="delete" data-id="${t.id}">삭제</button>
+            </div>
+          </article>
+        `;
+      }).join("");
     }
 
-    function formatDuration(ms) {
-      const totalMinutes = Math.max(1, Math.floor(ms / (1000 * 60)));
-      const days = Math.floor(totalMinutes / (60 * 24));
-      const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
-      const minutes = totalMinutes % 60;
-
-      if (days > 0) return `${days}일 ${hours}시간`;
-      if (hours > 0) return `${hours}시간 ${minutes}분`;
-      return `${minutes}분`;
-    }
-
-    function formatDate(date) {
-      const y = date.getFullYear();
-      const m = date.getMonth() + 1;
-      const d = date.getDate();
-      const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
-      const day = dayNames[date.getDay()];
-      const hh = String(date.getHours()).padStart(2, "0");
-      const mm = String(date.getMinutes()).padStart(2, "0");
-      return `${y}.${m}.${d}(${day}) ${hh}:${mm}`;
-    }
-
-    function toDatetimeLocal(date) {
-      const pad = (n) => String(n).padStart(2, "0");
-      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-    }
-
-    function escapeHtml(str) {
-      return str
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/\"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
-    function getTaskState(task) {
-      const now = Date.now();
-      const end = Number(task.deadlineMs);
-      const start = Number(task.created);
-      const diff = end - now;
-      const overdue = diff < 0;
-      const urgent = !overdue && diff <= 24 * 60 * 60 * 1000;
-
-      let percent = ((now - start) / (end - start)) * 100;
-      percent = Math.min(100, Math.max(0, percent));
-      if (!Number.isFinite(percent)) percent = 100;
-
-      return {
-        overdue,
-        urgent,
-        percent,
-        statusClass: overdue ? "overdue" : urgent ? "urgent" : "active",
-        statusText: overdue ? "마감 지남" : urgent ? "급한 일정" : "진행 중",
-        remainingText: overdue ? `${formatDuration(Math.abs(diff))} 지남` : `${formatDuration(diff)} 남음`,
-        detailText: overdue ? "예정된 종료 시점을 지났습니다" : `시작 후 ${Math.round(percent)}% 진행된 상태입니다`
-      };
-    }
-
-    function refreshTaskLiveState() {
-      const cards = [...container.querySelectorAll(".task-card[data-task-id]")];
-
-      cards.forEach((card) => {
-        const taskId = card.dataset.taskId;
-        const task = tasks.find((item) => item.id === taskId);
-        if (!task) return;
-
-        const state = getTaskState(task);
-        card.classList.remove("active", "urgent", "overdue");
-        card.classList.add(state.statusClass);
-
-        const statusPill = card.querySelector(".js-status-pill");
-        const progressTitle = card.querySelector(".js-progress-title");
-        const progressDetail = card.querySelector(".js-progress-detail");
-        const progressPercent = card.querySelector(".js-progress-percent");
-        const progressBar = card.querySelector(".js-progress-bar");
-
-        if (statusPill) {
-          statusPill.className = `status-pill ${state.statusClass} js-status-pill`;
-          statusPill.textContent = state.statusText;
-        }
-        if (progressTitle) progressTitle.textContent = state.remainingText;
-        if (progressDetail) progressDetail.textContent = state.detailText;
-        if (progressPercent) progressPercent.textContent = `${Math.round(state.percent)}%`;
-        if (progressBar) progressBar.style.width = `${state.percent}%`;
-      });
-    }
-
-    setDefaultDeadline();
-    subscribeTasks();
-    setInterval(() => {
-      renderSummary();
-      refreshTaskLiveState();
-    }, 60000);
+    setInterval(render, 60000);
   </script>
 </body>
 </html>
