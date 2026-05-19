@@ -133,7 +133,7 @@
       height: 20px;
     }
 
-    /* 메인 앱 스타일 (기존 스타일 유지) */
+    /* 메인 앱 스타일 */
     #app-screen {
       padding: 28px 18px 86px;
     }
@@ -299,7 +299,6 @@
   </style>
 </head>
 <body>
-  <!-- 로그인 화면 -->
   <div id="login-screen">
     <div class="login-card">
       <div class="login-logo">✓</div>
@@ -317,7 +316,6 @@
     </div>
   </div>
 
-  <!-- 메인 앱 화면 -->
   <div id="app-screen">
     <div class="bg-orb"></div>
     <div class="bg-orb-2"></div>
@@ -344,7 +342,6 @@
     <button class="floating-add" id="openModal">＋</button>
   </div>
 
-  <!-- 모달 -->
   <div class="modal" id="modal">
     <div class="modal-content">
       <div class="form-group">
@@ -431,10 +428,9 @@
 
     logoutBtn.onclick = () => signOut(auth);
 
-    // --- 할 일 로직 (사용자 ID 기반 경로로 수정) ---
+    // --- 할 일 로직 ---
 
     function getTasksRef() {
-        // 규칙 1 준수: /artifacts/{appId}/users/{userId}/tasks
         return collection(db, 'artifacts', appId, 'users', currentUser.uid, 'tasks');
     }
 
@@ -470,7 +466,7 @@
       }
     };
 
-    // --- UI 보조 기능 (기존과 동일) ---
+    // --- UI 보조 기능 ---
 
     function openTaskModal() { modal.classList.add("show"); setDefaultDeadline(); }
     function closeTaskModal() { modal.classList.remove("show"); }
@@ -529,6 +525,18 @@
         let percent = ((now - t.created) / (t.deadlineMs - t.created)) * 100;
         percent = Math.min(100, Math.max(0, percent));
 
+        // [추가 기능] 실시간 남은 시간 계산 로직
+        let remainingText = "";
+        if (isOverdue) {
+          remainingText = "마감됨";
+        } else {
+          const diffMins = Math.floor(diff / 60000);
+          const days = Math.floor(diffMins / 1440);
+          const hours = Math.floor((diffMins % 1440) / 60);
+          const mins = diffMins % 60;
+          remainingText = `${days}일 ${hours}시간 ${mins}분 남음`;
+        }
+
         return `
           <article class="task-card ${status}">
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -536,7 +544,12 @@
               <span class="status-pill ${status}">${statusText}</span>
             </div>
             <h3 class="task-title">${t.title}</h3>
-            <div class="task-meta"><span class="meta-chip">마감: ${new Date(t.deadline).toLocaleString()}</span></div>
+            <div class="task-meta">
+              <span class="meta-chip">마감: ${new Date(t.deadline).toLocaleString()}</span>
+              <span class="meta-chip" style="font-weight: 800; color: ${isOverdue ? 'var(--danger)' : 'var(--primary-strong)'};">
+                ⏱️ ${remainingText}
+              </span>
+            </div>
             <div class="progress-shell">
               <div class="progress-row"><span style="font-size:13px; font-weight:800;">${Math.round(percent)}% 진행</span><span class="progress-percent">${isOverdue ? '종료' : '진행중'}</span></div>
               <div class="progress"><div class="bar" style="width:${percent}%"></div></div>
