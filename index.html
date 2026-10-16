@@ -31,12 +31,16 @@
       --radius-md: 18px;
       --radius-sm: 14px;
       --container: 1180px;
+      
+      /* 120fps 느낌의 부드러운 이징(Easing) 커브 추가 */
+      --smooth: cubic-bezier(0.16, 1, 0.3, 1);
+      --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     * { box-sizing: border-box; }
 
     html {
-      scroll-behavior: smooth; /* 부드러운 스크롤 적용 */
+      scroll-behavior: smooth;
     }
 
     html, body {
@@ -52,7 +56,6 @@
       text-rendering: optimizeLegibility;
     }
 
-    /* 초기 숨김 상태 */
     #app-screen, #login-screen {
       display: none;
     }
@@ -77,6 +80,9 @@
       backdrop-filter: blur(20px);
       max-width: 400px;
       width: 100%;
+      transform: translateY(0);
+      animation: fadeUp 0.8s var(--smooth);
+      will-change: transform, opacity;
     }
 
     .login-logo {
@@ -123,24 +129,24 @@
       font-weight: 700;
       color: #374151;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.4s var(--smooth);
+      will-change: transform, box-shadow, background-color;
     }
 
     .google-login-btn:hover {
       background: #f9fafb;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+    }
+    
+    .google-login-btn:active, button:active {
+      transform: scale(0.96) translateY(0) !important;
     }
 
-    .google-icon {
-      width: 20px;
-      height: 20px;
-    }
+    .google-icon { width: 20px; height: 20px; }
 
     /* 메인 앱 스타일 */
-    #app-screen {
-      padding: 28px 18px 86px;
-    }
+    #app-screen { padding: 28px 18px 86px; }
 
     .bg-orb, .bg-orb-2 {
       position: fixed;
@@ -154,19 +160,9 @@
     .bg-orb { top: -90px; left: -90px; width: 240px; height: 240px; background: rgba(47, 128, 255, 0.16); }
     .bg-orb-2 { right: -80px; top: 140px; width: 220px; height: 220px; background: rgba(129, 140, 248, 0.12); }
 
-    .wrap {
-      position: relative;
-      z-index: 1;
-      max-width: var(--container);
-      margin: 0 auto;
-    }
+    .wrap { position: relative; z-index: 1; max-width: var(--container); margin: 0 auto; }
 
-    .summary {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 14px;
-      margin-bottom: 18px;
-    }
+    .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
 
     .summary-card {
       position: relative;
@@ -177,6 +173,13 @@
       border: 1px solid rgba(255, 255, 255, 0.82);
       box-shadow: var(--shadow-md);
       backdrop-filter: blur(18px);
+      transition: transform 0.5s var(--smooth), box-shadow 0.5s var(--smooth);
+      will-change: transform, box-shadow;
+    }
+
+    .summary-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
     }
 
     .summary-card::after {
@@ -192,82 +195,59 @@
     }
 
     .summary-label { color: var(--text-muted); font-size: 13px; font-weight: 700; margin-bottom: 12px; }
-    .summary-value { font-size: 34px; font-weight: 850; line-height: 1; letter-spacing: -0.05em; }
-    .summary-sub { margin-top: 10px; color: var(--text-soft); font-size: 13px; line-height: 1.55; }
+    .summary-value { font-size: 34px; font-weight: 850; line-height: 1; letter-spacing: -0.05em; transition: all 0.4s var(--smooth); }
 
     .toolbar-shell {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      padding: 14px;
-      margin-bottom: 18px;
-      border-radius: 24px;
-      background: rgba(255, 255, 255, 0.68);
-      border: 1px solid rgba(255, 255, 255, 0.82);
-      box-shadow: var(--shadow-md);
-      backdrop-filter: blur(18px);
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      padding: 14px; margin-bottom: 18px; border-radius: 24px;
+      background: rgba(255, 255, 255, 0.68); border: 1px solid rgba(255, 255, 255, 0.82);
+      box-shadow: var(--shadow-md); backdrop-filter: blur(18px);
     }
 
     .toolbar { display: flex; gap: 10px; flex-wrap: wrap; }
 
-    .ghost-btn, .complete-btn, .delete-btn, .close-icon, .floating-add, .add-btn, .logout-btn {
-      appearance: none;
-      border: none;
-      cursor: pointer;
-      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-      font-family: inherit;
+    .ghost-btn, .complete-btn, .delete-btn, .floating-add, .add-btn, .logout-btn {
+      appearance: none; border: none; cursor: pointer; font-family: inherit;
+      transition: all 0.4s var(--smooth);
+      will-change: transform, box-shadow, background-color;
     }
 
-    .ghost-btn:hover, .complete-btn:hover, .delete-btn:hover, .close-icon:hover, .floating-add:hover, .add-btn:hover, .logout-btn:hover {
-      transform: translateY(-1px);
+    .ghost-btn:hover, .logout-btn:hover {
+      transform: translateY(-2px);
     }
 
     .ghost-btn {
-      padding: 11px 15px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.74);
-      border: 1px solid rgba(255, 255, 255, 0.82);
-      color: var(--text-soft);
-      font-weight: 800;
-      font-size: 14px;
+      padding: 11px 15px; border-radius: 999px; background: rgba(255, 255, 255, 0.74);
+      border: 1px solid rgba(255, 255, 255, 0.82); color: var(--text-soft); font-weight: 800; font-size: 14px;
     }
 
     .ghost-btn.active {
       background: linear-gradient(180deg, rgba(106, 169, 255, 0.22) 0%, rgba(47, 128, 255, 0.16) 100%);
-      color: var(--primary-strong);
-      border-color: rgba(47, 128, 255, 0.1);
+      color: var(--primary-strong); border-color: rgba(47, 128, 255, 0.1);
     }
 
     .logout-btn {
-        padding: 8px 14px;
-        border-radius: 12px;
-        background: rgba(15, 23, 42, 0.05);
-        color: var(--text-soft);
-        font-size: 12px;
-        font-weight: 700;
+        padding: 8px 14px; border-radius: 12px; background: rgba(15, 23, 42, 0.05); color: var(--text-soft); font-size: 12px; font-weight: 700;
     }
 
     .task-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 18px; }
 
     .task-card {
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      min-height: 290px;
-      padding: 24px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.68) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.82);
-      border-radius: 30px;
-      box-shadow: var(--shadow-lg);
-      backdrop-filter: blur(18px);
-      /* animation 속성은 JS에서 새 요소에만 동적으로 부여하도록 수정됨 */
+      position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 18px; min-height: 290px;
+      padding: 24px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.68) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.82); border-radius: 30px; box-shadow: var(--shadow-md); backdrop-filter: blur(18px);
+      transition: transform 0.5s var(--smooth), box-shadow 0.5s var(--smooth), border-color 0.5s var(--smooth);
+      will-change: transform, box-shadow;
+    }
+
+    .task-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.1);
+      border-color: rgba(255, 255, 255, 1);
     }
 
     .task-index { display: inline-flex; align-items: center; justify-content: center; min-width: 42px; height: 42px; border-radius: 999px; background: rgba(15, 23, 42, 0.06); color: var(--text-soft); font-size: 13px; font-weight: 800; }
-    .status-pill { display: inline-flex; align-items: center; gap: 8px; padding: 10px 13px; border-radius: 999px; font-size: 12px; font-weight: 800; }
+    .status-pill { display: inline-flex; align-items: center; gap: 8px; padding: 10px 13px; border-radius: 999px; font-size: 12px; font-weight: 800; transition: background 0.4s var(--smooth); }
     .status-pill.active { background: var(--primary-soft); color: var(--primary-strong); }
     .status-pill.urgent { background: var(--warning-soft); color: var(--warning); }
     .status-pill.overdue { background: var(--danger-soft); color: var(--danger); }
@@ -279,35 +259,56 @@
     .progress-shell { padding: 16px; border-radius: 22px; background: rgba(15, 23, 42, 0.03); border: 1px solid rgba(15, 23, 42, 0.03); }
     .progress-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 12px; }
     .progress-percent { font-size: 18px; font-weight: 850; }
-    .progress { height: 15px; border-radius: 999px; background: rgba(15, 23, 42, 0.07); overflow: hidden; }
-    .bar { height: 100%; width: 0; transition: width 0.45s ease; background: var(--primary); }
+    .progress { height: 15px; border-radius: 999px; background: rgba(15, 23, 42, 0.07); overflow: hidden; transform: translateZ(0); }
+    .bar { height: 100%; width: 0; transition: width 1s var(--smooth); background: var(--primary); will-change: width; }
 
     .task-actions { display: flex; gap: 10px; margin-top: auto; }
     .complete-btn, .delete-btn { flex: 1; padding: 15px; border-radius: 16px; font-size: 14px; font-weight: 800; }
     .complete-btn { background: linear-gradient(180deg, #1fc885 0%, var(--success) 100%); color: white; box-shadow: 0 16px 24px rgba(18, 183, 106, 0.22); }
+    .complete-btn:hover { box-shadow: 0 20px 30px rgba(18, 183, 106, 0.35); transform: translateY(-2px); }
+    
     .delete-btn { background: rgba(15, 23, 42, 0.05); color: var(--text-soft); }
+    .delete-btn:hover { background: rgba(15, 23, 42, 0.08); transform: translateY(-2px); }
 
-    .floating-add { position: fixed; right: 28px; bottom: 28px; width: 68px; height: 68px; border-radius: 999px; background: linear-gradient(180deg, #67a7ff 0%, var(--primary) 100%); color: white; font-size: 34px; box-shadow: 0 22px 40px rgba(47, 128, 255, 0.34); z-index: 30; }
+    .floating-add {
+      position: fixed; right: 28px; bottom: 28px; width: 68px; height: 68px; border-radius: 999px;
+      background: linear-gradient(180deg, #67a7ff 0%, var(--primary) 100%); color: white; font-size: 34px;
+      box-shadow: 0 22px 40px rgba(47, 128, 255, 0.34); z-index: 30;
+      transition: all 0.5s var(--spring);
+    }
+    
+    .floating-add:hover {
+      transform: translateY(-6px) scale(1.05);
+      box-shadow: 0 30px 50px rgba(47, 128, 255, 0.45);
+    }
 
-    /* 부드러운 모달 전환 */
+    /* 쫀득한 스프링 모달 애니메이션 */
     .modal { 
       position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; 
       padding: 20px; background: rgba(10, 18, 30, 0.42); backdrop-filter: blur(16px); z-index: 100; 
-      opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
+      opacity: 0; visibility: hidden; transition: opacity 0.4s var(--smooth), visibility 0.4s var(--smooth);
     }
     .modal.show { opacity: 1; visibility: visible; }
     .modal-content { 
       position: relative; width: min(100%, 440px); padding: 24px; border-radius: 30px; 
       background: white; border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 32px 80px rgba(15, 23, 42, 0.2); 
-      transform: translateY(20px); transition: transform 0.3s ease;
+      transform: translateY(40px) scale(0.95); opacity: 0;
+      transition: transform 0.6s var(--spring), opacity 0.4s var(--smooth);
+      will-change: transform, opacity;
     }
-    .modal.show .modal-content { transform: translateY(0); }
+    .modal.show .modal-content { transform: translateY(0) scale(1); opacity: 1; }
     
     .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-    input { width: 100%; padding: 16px; border-radius: 18px; border: 1px solid rgba(15, 23, 42, 0.07); background: #fafbfd; font: inherit; }
+    input { width: 100%; padding: 16px; border-radius: 18px; border: 1px solid rgba(15, 23, 42, 0.07); background: #fafbfd; font: inherit; transition: all 0.3s var(--smooth); }
+    input:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 4px var(--primary-soft); }
+    
     .add-btn { width: 100%; padding: 15px; border-radius: 16px; background: var(--primary); color: white; font-weight: 800; }
+    .add-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(47, 128, 255, 0.3); }
 
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUp { 
+      from { opacity: 0; transform: translateY(24px) scale(0.98); } 
+      to { opacity: 1; transform: translateY(0) scale(1); } 
+    }
 
     @media (max-width: 1060px) { .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 760px) { .summary { grid-template-columns: 1fr; } .toolbar-shell { flex-direction: column; align-items: stretch; } }
@@ -379,7 +380,6 @@
     import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-    // 사용자 정보에 맞게 API 키 정보를 업데이트하세요.
     const firebaseConfig = {
       apiKey: "AIzaSyCdGzPAoUHasfeuQGN6IXVbCmUQ553sIgA",
       authDomain: "todolist-374aa.firebaseapp.com",
@@ -416,8 +416,6 @@
     let currentUser = null;
     let unsubscribeTasks = null;
 
-    // --- 인증 로직 ---
-
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUser = user;
@@ -442,8 +440,6 @@
     };
 
     logoutBtn.onclick = () => signOut(auth);
-
-    // --- 할 일 로직 ---
 
     function getTasksRef() {
         return collection(db, 'artifacts', appId, 'users', currentUser.uid, 'tasks');
@@ -481,9 +477,7 @@
       }
     };
 
-    // --- UI 보조 기능 ---
-
-    function openTaskModal() { modal.classList.add("show"); setDefaultDeadline(); }
+    function openTaskModal() { modal.classList.add("show"); setDefaultDeadline(); setTimeout(() => titleInput.focus(), 100); }
     function closeTaskModal() { modal.classList.remove("show"); }
     function setDefaultDeadline() {
       const now = new Date();
@@ -525,19 +519,16 @@
         return true;
       });
 
-      // 데이터가 없을 때 메시지 처리 방식 변경 (깜빡임 방지)
       if (filtered.length === 0) {
-        container.innerHTML = '<div class="empty-state" style="grid-column:1/-1; text-align:center; padding:60px; color:var(--text-muted);">할 일이 없습니다.</div>';
+        container.innerHTML = '<div class="empty-state" style="grid-column:1/-1; text-align:center; padding:60px; color:var(--text-muted); font-weight:700;">할 일이 없습니다.</div>';
         return;
       }
       const emptyState = container.querySelector('.empty-state');
       if (emptyState) emptyState.remove();
 
-      // [핵심 변경] DOM 재성성 대신 업데이트 방식으로 변경 (깜빡임 방지)
       const existingCards = Array.from(container.querySelectorAll('.task-card'));
       const filteredIds = filtered.map(t => t.id);
 
-      // 삭제되거나 필터에서 제외된 카드 제거
       existingCards.forEach(card => {
         if (!filteredIds.includes(card.dataset.id)) {
           card.remove();
@@ -565,21 +556,17 @@
           remainingText = `${days}일 ${hours}시간 ${mins}분 남음`;
         }
 
-        // 기존 카드가 있는지 확인
         let card = container.querySelector(`.task-card[data-id="${t.id}"]`);
         
         if (!card) {
-          // 카드가 없으면 새로 생성하며 나타나는 애니메이션 부여
           card = document.createElement('article');
           card.dataset.id = t.id;
-          card.style.animation = "fadeUp 0.45s ease forwards";
+          card.style.animation = "fadeUp 0.7s var(--spring) forwards";
           container.appendChild(card);
         } else {
-          // 카드가 있으면 애니메이션 비활성화 (리프레시 시 깜빡임 방지)
           card.style.animation = "none";
         }
         
-        // 카드 상태 및 내용 갱신 (모양만 교체)
         card.className = `task-card ${status}`;
         card.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -604,7 +591,6 @@
         `;
       });
 
-      // 마감일 기준 정렬 순서를 유지하도록 재배치
       filtered.forEach(t => {
         const card = container.querySelector(`.task-card[data-id="${t.id}"]`);
         if (card) container.appendChild(card);
