@@ -32,7 +32,7 @@
       --radius-sm: 14px;
       --container: 1180px;
       
-      /* 120fps 느낌의 부드러운 이징(Easing) 커브 추가 */
+      /* 120fps 느낌의 부드러운 이징(Easing) 커브 */
       --smooth: cubic-bezier(0.16, 1, 0.3, 1);
       --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
     }
@@ -161,6 +161,67 @@
     .bg-orb-2 { right: -80px; top: 140px; width: 220px; height: 220px; background: rgba(129, 140, 248, 0.12); }
 
     .wrap { position: relative; z-index: 1; max-width: var(--container); margin: 0 auto; }
+
+    /* 달력 UI 스타일 */
+    .calendar-shell {
+      background: var(--surface);
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255, 255, 255, 0.82);
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(18px);
+      padding: 24px;
+      margin-bottom: 24px;
+      animation: fadeUp 0.6s var(--smooth);
+    }
+    .calendar-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+    }
+    .calendar-title {
+      font-size: 22px; font-weight: 850; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px;
+    }
+    .calendar-nav { display: flex; gap: 8px; }
+    .calendar-nav-btn {
+      width: 36px; height: 36px; border-radius: 12px; background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(15, 23, 42, 0.05); color: var(--text); font-weight: bold; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: all 0.3s var(--smooth);
+    }
+    .calendar-nav-btn:hover { background: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .calendar-grid {
+      display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px;
+    }
+    .calendar-day-name {
+      text-align: center; font-size: 13px; font-weight: 800; color: var(--text-soft); padding-bottom: 8px;
+    }
+    .calendar-day-name:first-child { color: var(--danger); }
+    .calendar-day-name:last-child { color: var(--primary); }
+    
+    .calendar-cell {
+      min-height: 90px; border-radius: 16px; background: rgba(255, 255, 255, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.6); padding: 8px;
+      display: flex; flex-direction: column; gap: 4px;
+      transition: all 0.3s var(--smooth);
+    }
+    .calendar-cell.other-month { opacity: 0.4; }
+    .calendar-cell:hover { background: rgba(255, 255, 255, 0.9); transform: scale(1.02); box-shadow: var(--shadow-lg); border-color: white; z-index: 2; }
+    
+    .calendar-date-row { display: flex; justify-content: center; margin-bottom: 4px; }
+    .calendar-date {
+      font-size: 14px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%; color: var(--text-soft);
+    }
+    .calendar-cell:nth-child(7n+1) .calendar-date { color: var(--danger); }
+    .calendar-cell:nth-child(7n) .calendar-date { color: var(--primary); }
+    .calendar-date.today { background: var(--primary); color: white !important; box-shadow: 0 4px 10px rgba(47, 128, 255, 0.3); }
+    
+    .calendar-task-chip {
+      font-size: 11px; font-weight: 700; padding: 4px 6px; border-radius: 6px;
+      background: #199448; /* 사진과 비슷한 가독성 높은 녹색 */
+      color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      box-shadow: 0 2px 4px rgba(25, 148, 72, 0.2);
+    }
+    .calendar-task-chip.overdue { background: var(--danger); box-shadow: 0 2px 4px rgba(240, 68, 82, 0.2); }
+    .calendar-task-chip.urgent { background: var(--warning); box-shadow: 0 2px 4px rgba(247, 144, 9, 0.2); }
 
     .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
 
@@ -311,7 +372,13 @@
     }
 
     @media (max-width: 1060px) { .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (max-width: 760px) { .summary { grid-template-columns: 1fr; } .toolbar-shell { flex-direction: column; align-items: stretch; } }
+    @media (max-width: 760px) { 
+      .summary { grid-template-columns: 1fr; } 
+      .toolbar-shell { flex-direction: column; align-items: stretch; }
+      .calendar-grid { gap: 4px; }
+      .calendar-cell { min-height: 70px; padding: 4px; }
+      .calendar-task-chip { font-size: 10px; padding: 2px 4px; }
+    }
   </style>
 </head>
 <body>
@@ -337,6 +404,29 @@
     <div class="bg-orb-2"></div>
 
     <div class="wrap">
+      <!-- 새로 추가된 달력 섹션 -->
+      <section id="calendar-section" class="calendar-shell">
+        <div class="calendar-header">
+          <div class="calendar-title" id="calendarTitle">2023년 10월</div>
+          <div class="calendar-nav">
+            <button class="calendar-nav-btn" id="prevMonthBtn">❮</button>
+            <button class="calendar-nav-btn" id="nextMonthBtn">❯</button>
+          </div>
+        </div>
+        <div class="calendar-grid">
+          <div class="calendar-day-name">일</div>
+          <div class="calendar-day-name">월</div>
+          <div class="calendar-day-name">화</div>
+          <div class="calendar-day-name">수</div>
+          <div class="calendar-day-name">목</div>
+          <div class="calendar-day-name">금</div>
+          <div class="calendar-day-name">토</div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid">
+          <!-- JS로 동적 렌더링 -->
+        </div>
+      </section>
+
       <section class="summary" id="summary"></section>
 
       <section class="toolbar-shell">
@@ -411,10 +501,21 @@
     const summary = document.getElementById("summary");
     const filterButtons = [...document.querySelectorAll(".ghost-btn")];
 
+    // 달력 DOM
+    const calendarTitle = document.getElementById("calendarTitle");
+    const calendarGrid = document.getElementById("calendarGrid");
+    const prevMonthBtn = document.getElementById("prevMonthBtn");
+    const nextMonthBtn = document.getElementById("nextMonthBtn");
+
     let currentFilter = "all";
     let tasks = [];
     let currentUser = null;
     let unsubscribeTasks = null;
+    
+    // 달력 상태 변수
+    let currentDate = new Date();
+    let currentMonth = currentDate.getMonth();
+    let currentYear = currentDate.getFullYear();
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -466,7 +567,7 @@
       const q = query(getTasksRef(), orderBy("deadlineMs", "asc"));
       unsubscribeTasks = onSnapshot(q, (snapshot) => {
         tasks = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
-        render();
+        render(); // render() 안에서 달력도 다시 그려줌
       }, (err) => console.error("Firestore error:", err));
     }
 
@@ -498,7 +599,89 @@
       render();
     });
 
+    // 달력 네비게이션
+    prevMonthBtn.onclick = () => {
+      currentMonth--;
+      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+      renderCalendar();
+    };
+    nextMonthBtn.onclick = () => {
+      currentMonth++;
+      if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+      renderCalendar();
+    };
+
+    // 달력 렌더링 함수
+    function renderCalendar() {
+      calendarTitle.innerHTML = `${currentYear}년 ${currentMonth + 1}월`;
+      calendarGrid.innerHTML = "";
+
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const prevMonthDays = new Date(currentYear, currentMonth, 0).getDate();
+      
+      const today = new Date();
+      const isCurrentMonth = today.getMonth() === currentMonth && today.getFullYear() === currentYear;
+
+      // 작업(Task)들을 'YYYY-M-D' 형식의 날짜 문자열 키로 그룹화
+      const tasksByDate = {};
+      tasks.forEach(t => {
+        const d = new Date(t.deadlineMs);
+        const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+        if (!tasksByDate[key]) tasksByDate[key] = [];
+        tasksByDate[key].push(t);
+      });
+
+      const nowMs = Date.now();
+
+      // 달력 셀 생성 루프
+      for (let i = 0; i < 42; i++) { // 6주 고정
+        const cell = document.createElement("div");
+        cell.className = "calendar-cell";
+
+        let dayNumber;
+        let cellDateKey = "";
+        
+        if (i < firstDay) {
+          // 이전 달
+          dayNumber = prevMonthDays - firstDay + i + 1;
+          cell.classList.add("other-month");
+        } else if (i >= firstDay + daysInMonth) {
+          // 다음 달
+          dayNumber = i - firstDay - daysInMonth + 1;
+          cell.classList.add("other-month");
+        } else {
+          // 이번 달
+          dayNumber = i - firstDay + 1;
+          cellDateKey = `${currentYear}-${currentMonth}-${dayNumber}`;
+        }
+
+        let dateHtml = `<div class="calendar-date-row"><span class="calendar-date ${isCurrentMonth && dayNumber === today.getDate() && i >= firstDay && i < firstDay + daysInMonth ? 'today' : ''}">${dayNumber}</span></div>`;
+        cell.innerHTML = dateHtml;
+
+        // 해당 날짜에 일정이 있으면 칩(블록) 표시
+        if (cellDateKey && tasksByDate[cellDateKey]) {
+          tasksByDate[cellDateKey].forEach(t => {
+            const diff = t.deadlineMs - nowMs;
+            let statusClass = "";
+            if (diff < 0) statusClass = "overdue";
+            else if (diff <= 86400000) statusClass = "urgent";
+
+            const chip = document.createElement("div");
+            chip.className = `calendar-task-chip ${statusClass}`;
+            chip.innerText = t.title;
+            cell.appendChild(chip);
+          });
+        }
+
+        calendarGrid.appendChild(cell);
+      }
+    }
+
     function render() {
+      // 할 일 리스트 렌더링 시 달력도 데이터에 맞게 갱신
+      renderCalendar();
+
       const now = Date.now();
       const all = tasks.length;
       const active = tasks.filter(t => t.deadlineMs > now).length;
