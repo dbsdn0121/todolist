@@ -169,26 +169,26 @@
       border: 1px solid rgba(255, 255, 255, 0.82);
       box-shadow: var(--shadow-md);
       backdrop-filter: blur(18px);
-      padding: 24px;
+      padding: 18px; /* 크기 축소를 위해 여백 조정 */
       margin-bottom: 24px;
       animation: fadeUp 0.6s var(--smooth);
     }
     .calendar-header {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
     }
     .calendar-title {
-      font-size: 22px; font-weight: 850; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px;
+      font-size: 20px; font-weight: 850; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px;
     }
     .calendar-nav { display: flex; gap: 8px; }
     .calendar-nav-btn {
-      width: 36px; height: 36px; border-radius: 12px; background: rgba(255, 255, 255, 0.6);
+      width: 32px; height: 32px; border-radius: 12px; background: rgba(255, 255, 255, 0.6);
       border: 1px solid rgba(15, 23, 42, 0.05); color: var(--text); font-weight: bold; cursor: pointer;
       display: inline-flex; align-items: center; justify-content: center;
       transition: all 0.3s var(--smooth);
     }
     .calendar-nav-btn:hover { background: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
     .calendar-grid {
-      display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px;
+      display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px;
     }
     .calendar-day-name {
       text-align: center; font-size: 13px; font-weight: 800; color: var(--text-soft); padding-bottom: 8px;
@@ -197,25 +197,27 @@
     .calendar-day-name:last-child { color: var(--primary); }
     
     .calendar-cell {
-      min-height: 90px; border-radius: 16px; background: rgba(255, 255, 255, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.6); padding: 8px;
+      min-height: 72px; /* 달력 칸 크기 축소 */
+      border-radius: 16px; background: rgba(255, 255, 255, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.6); padding: 6px;
       display: flex; flex-direction: column; gap: 4px;
       transition: all 0.3s var(--smooth);
+      cursor: pointer; /* 마우스 손가락 커서 적용 */
     }
     .calendar-cell.other-month { opacity: 0.4; }
     .calendar-cell:hover { background: rgba(255, 255, 255, 0.9); transform: scale(1.02); box-shadow: var(--shadow-lg); border-color: white; z-index: 2; }
     
-    .calendar-date-row { display: flex; justify-content: center; margin-bottom: 4px; }
+    .calendar-date-row { display: flex; justify-content: center; margin-bottom: 2px; }
     .calendar-date {
-      font-size: 14px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center;
-      width: 28px; height: 28px; border-radius: 50%; color: var(--text-soft);
+      font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px; border-radius: 50%; color: var(--text-soft);
     }
     .calendar-cell:nth-child(7n+1) .calendar-date { color: var(--danger); }
     .calendar-cell:nth-child(7n) .calendar-date { color: var(--primary); }
     .calendar-date.today { background: var(--primary); color: white !important; box-shadow: 0 4px 10px rgba(47, 128, 255, 0.3); }
     
     .calendar-task-chip {
-      font-size: 11px; font-weight: 700; padding: 4px 6px; border-radius: 6px;
+      font-size: 10.5px; font-weight: 700; padding: 3px 5px; border-radius: 6px;
       background: #199448; /* 사진과 비슷한 가독성 높은 녹색 */
       color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       box-shadow: 0 2px 4px rgba(25, 148, 72, 0.2);
@@ -366,6 +368,21 @@
     .add-btn { width: 100%; padding: 15px; border-radius: 16px; background: var(--primary); color: white; font-weight: 800; }
     .add-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(47, 128, 255, 0.3); }
 
+    /* 날짜 클릭 시 나타나는 미니 팝업 상세 아이템 스타일 */
+    .day-task-item {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.03);
+      border: 1px solid rgba(15, 23, 42, 0.05);
+      text-align: left;
+    }
+    .day-task-title {
+      font-weight: 800; font-size: 16px; margin-bottom: 8px; color: var(--text);
+    }
+    .day-task-time {
+      font-size: 13px; color: var(--text-soft); font-weight: 700;
+    }
+
     @keyframes fadeUp { 
       from { opacity: 0; transform: translateY(24px) scale(0.98); } 
       to { opacity: 1; transform: translateY(0) scale(1); } 
@@ -376,7 +393,7 @@
       .summary { grid-template-columns: 1fr; } 
       .toolbar-shell { flex-direction: column; align-items: stretch; }
       .calendar-grid { gap: 4px; }
-      .calendar-cell { min-height: 70px; padding: 4px; }
+      .calendar-cell { min-height: 60px; padding: 4px; }
       .calendar-task-chip { font-size: 10px; padding: 2px 4px; }
     }
   </style>
@@ -448,6 +465,7 @@
     <button class="floating-add" id="openModal">＋</button>
   </div>
 
+  <!-- 할 일 추가 모달 -->
   <div class="modal" id="modal">
     <div class="modal-content">
       <div class="form-group">
@@ -462,6 +480,17 @@
         <button id="addTask" class="add-btn">추가하기</button>
         <button id="closeModal" class="delete-btn">취소</button>
       </div>
+    </div>
+  </div>
+
+  <!-- 날짜 클릭 상세 미니 팝업 모달 -->
+  <div class="modal" id="dayModal">
+    <div class="modal-content">
+      <h2 id="dayModalTitle" style="margin-top: 0; font-size: 20px; font-weight: 850; letter-spacing: -0.02em;">날짜 상세</h2>
+      <div id="dayModalTaskList" style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px; max-height: 350px; overflow-y: auto;">
+        <!-- 동적 추가 -->
+      </div>
+      <button id="closeDayModal" class="delete-btn" style="width: 100%; margin-top: 24px; padding: 14px;">닫기</button>
     </div>
   </div>
 
@@ -491,12 +520,20 @@
     const logoutBtn = document.getElementById("logoutBtn");
     const userNameDisplay = document.getElementById("userNameDisplay");
     
+    // 할 일 추가 모달 관련
     const modal = document.getElementById("modal");
     const openModal = document.getElementById("openModal");
     const closeModal = document.getElementById("closeModal");
     const addTaskBtn = document.getElementById("addTask");
     const titleInput = document.getElementById("title");
     const deadlineInput = document.getElementById("deadline");
+
+    // 날짜 상세 팝업 관련
+    const dayModal = document.getElementById("dayModal");
+    const dayModalTitle = document.getElementById("dayModalTitle");
+    const dayModalTaskList = document.getElementById("dayModalTaskList");
+    const closeDayModal = document.getElementById("closeDayModal");
+
     const container = document.getElementById("taskContainer");
     const summary = document.getElementById("summary");
     const filterButtons = [...document.querySelectorAll(".ghost-btn")];
@@ -591,6 +628,8 @@
     openModal.onclick = openTaskModal;
     closeModal.onclick = closeTaskModal;
     addTaskBtn.onclick = addTask;
+    
+    closeDayModal.onclick = () => { dayModal.classList.remove("show"); };
 
     filterButtons.forEach(btn => btn.onclick = () => {
       currentFilter = btn.dataset.filter;
@@ -672,6 +711,33 @@
             chip.innerText = t.title;
             cell.appendChild(chip);
           });
+        }
+        
+        // 이전/다음 달이 아닌 이번 달의 날짜인 경우에만 클릭 이벤트 부여
+        if (!cell.classList.contains("other-month")) {
+          cell.onclick = () => {
+            dayModalTitle.innerText = `${currentMonth + 1}월 ${dayNumber}일 일정`;
+            dayModalTaskList.innerHTML = "";
+            
+            if (cellDateKey && tasksByDate[cellDateKey] && tasksByDate[cellDateKey].length > 0) {
+              tasksByDate[cellDateKey].forEach(t => {
+                const deadlineObj = new Date(t.deadlineMs);
+                // 첨부해주신 이미지 스타일과 동일하게 시간 포맷팅 적용[cite: 1]
+                const timeString = deadlineObj.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+                
+                const item = document.createElement("div");
+                item.className = "day-task-item";
+                item.innerHTML = `
+                  <div class="day-task-title">${t.title}</div>
+                  <div class="day-task-time">⏰ 마감 시간: ${timeString}</div>
+                `;
+                dayModalTaskList.appendChild(item);
+              });
+            } else {
+              dayModalTaskList.innerHTML = '<div style="text-align:center; padding: 24px; color: var(--text-muted); font-size: 14px; font-weight: 700;">등록된 일정이 없습니다.</div>';
+            }
+            dayModal.classList.add("show");
+          };
         }
 
         calendarGrid.appendChild(cell);
